@@ -217,6 +217,12 @@ iperf_get_test_zerocopy(struct iperf_test *ipt)
     return ipt->zerocopy;
 }
 
+int
+iperf_get_test_get_remote_results(struct iperf_test *ipt)
+{
+    return ipt->get_remote_results;
+}
+
 char
 iperf_get_test_unit_format(struct iperf_test *ipt)
 {
@@ -356,6 +362,12 @@ void
 iperf_set_test_zerocopy(struct iperf_test *ipt, int zerocopy)
 {
     ipt->zerocopy = zerocopy;
+}
+
+void
+iperf_set_test_get_remote_results(struct iperf_test *ipt, int get_remote_results)
+{
+    ipt->get_remote_results = get_remote_results;
 }
 
 void
@@ -571,6 +583,7 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
 #endif
 	{"pidfile", required_argument, NULL, 'I'},
 	{"logfile", required_argument, NULL, OPT_LOGFILE},
+        {"get-remote-results", no_argument, NULL, OPT_GET_REMOTE_RESULTS},
         {"debug", no_argument, NULL, 'd'},
         {"help", no_argument, NULL, 'h'},
         {NULL, 0, NULL, 0}
@@ -803,6 +816,10 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
 	        break;
 	    case OPT_LOGFILE:
 		test->logfile = strdup(optarg);
+		break;
+	    case OPT_GET_REMOTE_RESULTS:
+		test->get_remote_results = 1;
+		client_flag = 1;
 		break;
             case 'h':
             default:
@@ -1165,6 +1182,8 @@ send_parameters(struct iperf_test *test)
 	    cJSON_AddStringToObject(j, "title", test->title);
 	if (test->congestion)
 	    cJSON_AddStringToObject(j, "congestion", test->congestion);
+	if (test->get_remote_results)
+	    cJSON_AddTrueToObject(j, "get_remote_results");
 	if (JSON_write(test->ctrl_sck, j) < 0) {
 	    i_errno = IESENDPARAMS;
 	    r = -1;
@@ -1228,6 +1247,8 @@ get_parameters(struct iperf_test *test)
 	    test->title = strdup(j_p->valuestring);
 	if ((j_p = cJSON_GetObjectItem(j, "congestion")) != NULL)
 	    test->congestion = strdup(j_p->valuestring);
+        if ((j_p = cJSON_GetObjectItem(j, "get_remote_results")) != NULL)
+            test->get_remote_results = 1;
 	if (test->sender && test->protocol->id == Ptcp && has_tcpinfo_retransmits())
 	    test->sender_has_retransmits = 1;
 	cJSON_Delete(j);
@@ -1267,6 +1288,9 @@ send_results(struct iperf_test *test)
 	    i_errno = IEPACKAGERESULTS;
 	    r = -1;
 	} else {
+	    if (test->get_remote_results) {
+		cJSON_AddItemToObject(j, "remote_results", test->json_top);
+	    }
 	    cJSON_AddItemToObject(j, "streams", j_streams);
 	    SLIST_FOREACH(sp, &test->streams, streams) {
 		j_stream = cJSON_CreateObject();
@@ -1288,6 +1312,9 @@ send_results(struct iperf_test *test)
 	    if (r == 0 && JSON_write(test->ctrl_sck, j) < 0) {
 		i_errno = IESENDRESULTS;
 		r = -1;
+	    }
+	    if (test->get_remote_results) {
+		cJSON_DetachItemFromObject(j, "remote_results");
 	    }
 	}
 	cJSON_Delete(j);
@@ -1415,6 +1442,10 @@ JSON_write(int fd, cJSON *json)
 	else {
 	    if (Nwrite(fd, str, hsize, Ptcp) < 0)
 		r = -1;
+	    if (0) {
+		printf("Sent %u bytes of JSON:\n", hsize);
+		printf("%s\n", str);
+	    }
 	}
 	free(str);
     }
@@ -1436,6 +1467,9 @@ JSON_read(int fd)
 	if (str != NULL) {
 	    if (Nread(fd, str, hsize, Ptcp) >= 0) {
 		str[hsize] = '\0';	/* add the EOS */
+		if (0) {
+		    printf("Received %u bytes of JSON\n", hsize);
+		}
 		json = cJSON_Parse(str);
 	    }
 	}
