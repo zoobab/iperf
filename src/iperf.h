@@ -191,6 +191,7 @@ struct iperf_test
     int	      json_output;                      /* -J option - JSON output */
     int	      zerocopy;                         /* -Z option - use sendfile */
     int       debug;				/* -d option - enable debug */
+    int	      get_remote_results;		/* --get-remote-results */
 
     int	      multisend;
 
