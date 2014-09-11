@@ -1,0 +1,3 @@
+version=3
+opts=dversionmangle=s/\+dfsg\d*$// \
+    http://downloads.es.net/pub/iperf/iperf-([0-9\.]+)\.tar\.gz
