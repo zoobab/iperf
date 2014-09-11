@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+export DH_OPTIONS
+
+override_dh_installchangelogs:
+	dh_installchangelogs RELEASE_NOTES
+
+%:
+	dh $@ --with autotools-dev

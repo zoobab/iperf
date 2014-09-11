@@ -1,0 +1,13 @@
+iperf3 (3.0.7-1) unstable; urgency=medium
+
+  * new upstream version
+  * tarball repackaging not necessary anymore
+
+ -- Raoul Gunnar Borenius <borenius@dfn.de>  Thu, 11 Sep 2014 11:57:57 +0200
+
+iperf3 (3.0.5+dfsg1-1) unstable; urgency=low
+
+  * Initial release (Closes: #739921)
+  * Repackage tarball to delete bootstrap.sh file with restrictive copyright.
+
+ -- Raoul Gunnar Borenius <borenius@dfn.de>  Sat, 21 Jun 2014 15:57:27 +0200
