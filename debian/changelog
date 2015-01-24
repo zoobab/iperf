@@ -1,3 +1,9 @@
+iperf3 (3.0.11-1~bpo70+1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Antoine Delvaux <antoine.delvaux@dante.net>  Sat, 24 Jan 2015 21:46:43 +0000
+
 iperf3 (3.0.7-1~bpo70+1) unstable; urgency=medium
 
   * Backport to wheezy
