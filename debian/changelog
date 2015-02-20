@@ -1,3 +1,9 @@
+iperf3 (3.0.11-1) unstable; urgency=medium
+
+  * New upstream version
+
+ -- Antoine Delvaux <antoine.delvaux@dante.net>  Fri, 20 Feb 2015 17:53:03 +0000
+
 iperf3 (3.0.7-2) unstable; urgency=medium
 
   * Adding a git-buildpackage configuration file
